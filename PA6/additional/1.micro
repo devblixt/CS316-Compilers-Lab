@@ -1,0 +1,21 @@
+PROGRAM factorial
+BEGIN
+    STRING eol := "\n";
+
+    FUNCTION INT adder (INT a, INT b)
+	BEGIN
+        RETURN a + b;
+	END
+	
+	FUNCTION VOID main ()
+	BEGIN
+		INT ret, a, b;
+        STRING ask := "Enter a number : ";
+        WRITE(ask);
+        READ(a);
+        WRITE(ask);
+        READ(b);
+        ret := adder(adder(1,2),adder(a,b));
+        WRITE(ret);
+	END
+END

@@ -1,0 +1,36 @@
+PROGRAM factorial
+BEGIN
+    STRING eol := "\n";
+
+    FUNCTION INT adder (INT a, INT b, INT op)
+	BEGIN
+        STRING invalid := "Enter a valid operation\n";
+        IF (op = 0)
+            STRING val1 := "addition";
+            WRITE(val1,eol);
+            RETURN a + b;
+        ELSE
+            IF (op = 1)
+                STRING val3 := "subtraction";
+                WRITE(val3, eol);
+                RETURN a - b;
+            ENDIF
+        ENDIF
+        WRITE(invalid,eol);
+	END
+	
+	FUNCTION VOID main ()
+	BEGIN
+		INT ret, a, b, op;
+        STRING ask := "Enter a number : ";
+        STRING askop := "Add(0) or sub(1) : ";
+        WRITE(ask);
+        READ(a);
+        WRITE(ask);
+        READ(b);
+        WRITE(askop);
+        READ(op);
+        ret := adder(a, b, op);
+        WRITE(ret);
+	END
+END

@@ -1,0 +1,273 @@
+%{
+
+#include <stdio.h> 
+#include <string.h> 
+#include <stdbool.h> 
+int yylex();
+int scope = -1;
+bool variableflag = false;
+char *variabletype;
+int n_blocks = 0;
+
+struct DiscreteSymbol {
+	char *ID;
+	char *value;
+	char *type;
+	int lineno;
+};
+
+struct SymbolTable{
+	int decls;
+	struct DiscreteSymbol symbols[100];
+};
+
+char *scope_ID[100];
+void yyerror(const char *err);
+extern int yylineno;
+struct SymbolTable symTab[100];
+
+%}
+
+
+%union{
+	char *s;
+	char *type;
+	int lineno;
+	struct DiscreteSymbol * symb;
+	char *v;
+}
+
+%token PROGRAM
+%token _BEGIN
+%token VOID
+%token IDENTIFIER
+%token INT
+%token FLOAT
+%token FLOATLITERAL
+%token INTLITERAL
+%token STRINGLITERAL
+%token STRING
+%token READ
+%token WRITE
+%token FUNCTION
+%token RETURN
+%token IF
+%token ELSE
+%token ENDIF
+%token WHILE
+%token ENDWHILE
+%token END
+%token BREAK
+%token CONTINUE
+
+%type <symb> string_decl var_decl param_decl id_list id_tail
+%type <s> id str
+%type <v> var_type
+
+%%
+program:	PROGRAM id _BEGIN {
+	++scope;
+	scope_ID[scope] = "GLOBAL";
+	symTab[scope].decls = 0;
+}
+			pgm_body END
+			{
+				for(int i=0; i<=scope ; i++) {
+					printf("Symbol table %s", scope_ID[i]);
+					if(!strcmp(scope_ID[i], "BLOCK ")) {
+						++n_blocks;
+						printf("%d",n_blocks);
+					}
+					printf("\n");
+					for(int j =0; j < symTab[i].decls ; j++) {
+						if(!strcmp(symTab[i].symbols[j].type,"STRING")){
+							printf("name %s type %s value %s\n",symTab[i].symbols[j].ID,"STRING",symTab[i].symbols[j].value);
+						}
+						else{
+							printf("name %s type %s\n",symTab[i].symbols[j].ID,symTab[i].symbols[j].type);
+						}
+					}
+				if(!(i==scope))
+				printf("\n");
+				}
+			};
+id:			IDENTIFIER {}
+;
+pgm_body:	decl func_declarations
+;
+decl:	string_decl decl | var_decl decl |
+;
+string_decl:STRING id ':''=' str ';'{
+	for(int i=0;i < symTab[scope].decls ; i++) {
+		if(!strcmp(symTab[scope].symbols[i].ID, $2)) {
+			printf("DECLARATION ERROR %s (previous declaration was at line %d)",$2,symTab[scope].symbols[i].lineno);
+			// printf("\n%s\n", $5);
+			printf("line number : %d",yylineno);
+			return 1;
+		}
+
+	}
+		$<symb>$ = (struct DiscreteSymbol*)malloc(sizeof(struct DiscreteSymbol));
+		$<symb>$->ID = $2;
+		$<symb>$->value = $5;
+		$<symb>$ -> lineno = yylineno;
+		$<symb>$ -> type = "STRING";
+		// printf("%s\n", yylval.type);
+
+		symTab[scope].symbols[symTab[scope].decls] = *($<symb>$);
+		symTab[scope].decls += 1;
+}
+;
+str:		STRINGLITERAL {}
+;
+var_decl:	var_type{
+	variableflag = true;
+	variabletype = $1;
+} id_list ';' {}
+;
+var_type:	FLOAT {}| INT{}
+;
+any_type:	var_type | VOID
+;
+id_list:	id{
+	if(variableflag){
+		for(int i=0; i < symTab[scope].decls ;i++) {
+			if(!strcmp(symTab[scope].symbols[i].ID,$1)) {
+				printf("DECLARATION ERROR %s(previous declaration was at line %d)",$1,symTab[scope].symbols[i].lineno);
+				return 1;
+			}
+		}
+		$<symb>$ = (struct DiscreteSymbol*)malloc(sizeof(struct DiscreteSymbol));
+		$<symb>$->ID = $1;
+		$<symb>$->type = variabletype;
+		$<symb>$->lineno = yylineno;
+		symTab[scope].symbols[symTab[scope].decls] = *($<symb>$);
+		++symTab[scope].decls;
+	}
+} id_tail {}
+;
+id_tail:',' id{
+		if(variableflag){
+		for(int i=0; i < symTab[scope].decls ;i++) {
+			if(!strcmp(symTab[scope].symbols[i].ID,$2)) {
+				printf("DECLARATION ERROR %s\n (previous declaration was at line %d)",$2,symTab[scope].symbols[i].lineno);
+				return 1;
+			}
+		}
+		$<symb>$ = (struct DiscreteSymbol*)malloc(sizeof(struct DiscreteSymbol));
+		$<symb>$->ID = $2;
+		$<symb>$->type = variabletype;
+		$<symb>$->lineno = yylineno;
+		symTab[scope].symbols[symTab[scope].decls] = *($<symb>$);
+		++symTab[scope].decls;
+	}
+} id_tail {}| {
+	variableflag = false;
+}
+;
+param_decl_list:	param_decl param_decl_tail |
+;
+param_decl:	var_type id {
+	for(int i=0; i<symTab[scope].decls ; i++) {
+		if(!strcmp(symTab[scope].symbols[i].ID, $2)) {
+			printf("DECLARATION ERROR %s (previous declaration was at line %d)\n",$2,symTab[scope].symbols[i].lineno);
+		}
+	}
+	$<symb>$ = (struct DiscreteSymbol*)malloc(sizeof(struct DiscreteSymbol));
+	$<symb>$->ID = $2;
+	$<symb>$->type = $1;
+	$<symb>$->lineno = yylineno;
+	symTab[scope].symbols[symTab[scope].decls] = *($<symb>$);
+	++symTab[scope].decls;
+}
+;
+param_decl_tail:	',' param_decl {}param_decl_tail |{}
+;
+func_declarations:	func_decl func_declarations |
+;
+func_decl:	FUNCTION any_type id {
+	++scope;
+	scope_ID[scope] = $3;
+	symTab[scope].decls = 0;
+} '(' param_decl_list ')' _BEGIN func_body END
+;
+func_body:	decl stmt_list 
+;
+stmt_list:	stmt stmt_list |
+;
+stmt:		base_stmt | if_stmt | while_stmt
+;
+base_stmt:	assign_stmt | read_stmt | write_stmt | return_stmt
+;
+assign_stmt:	assign_expr ';'
+;
+assign_expr:	id ':''=' expr
+;
+read_stmt:	READ '(' id_list ')'';'
+;
+write_stmt:	WRITE '(' id_list ')'';'
+;
+return_stmt:	RETURN expr ';'
+;
+expr:		expr_prefix factor
+;
+expr_prefix:	expr_prefix factor addop |
+;
+factor:		factor_prefix postfix_expr
+;
+factor_prefix:	factor_prefix postfix_expr mulop |
+;
+postfix_expr:	primary | call_expr
+;
+call_expr:	id '(' expr_list ')'
+;
+expr_list:	expr expr_list_tail |
+;
+expr_list_tail:	',' expr expr_list_tail |
+;
+primary:	'(' expr ')' | id | INTLITERAL | FLOATLITERAL
+;
+addop:		'+'|'-'
+;
+mulop:		'*'|'/'
+;
+if_stmt:	IF {
+	++scope;
+	scope_ID[scope] = "BLOCK ";
+	symTab[scope].decls = 0;
+}'(' cond ')' decl stmt_list else_part ENDIF
+;
+else_part:	ELSE{
+		++scope;
+	scope_ID[scope] = "BLOCK ";
+	symTab[scope].decls = 0;
+} decl stmt_list |
+;
+cond:		expr compop expr
+;
+compop:		'<'|'>'|'='|'!''='|'<''='|'>''='
+;
+
+while_stmt:	WHILE {
+	++scope;
+	scope_ID[scope] = "BLOCK ";
+	symTab[scope].decls = 0;
+} '(' cond ')' decl aug_stmt_list ENDWHILE
+;
+aug_stmt_list: aug_stmt aug_stmt_list| 
+;
+aug_stmt: base_stmt |aug_if_stmt| while_stmt|CONTINUE';'|BREAK';'
+; 
+aug_if_stmt: IF{
+		++scope;
+	scope_ID[scope] = "BLOCK ";
+	symTab[scope].decls = 0;
+} '(' cond ')' decl aug_stmt_list aug_else_part ENDIF
+; 
+aug_else_part: ELSE{
+		++scope;
+	scope_ID[scope] = "BLOCK ";
+	symTab[scope].decls = 0;
+} decl aug_stmt_list|
+;
+%%

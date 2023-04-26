@@ -1,0 +1,39 @@
+PROGRAM test
+BEGIN
+
+	INT i,j,k;
+    STRING space := " ";
+    STRING newline := "\n";
+	STRING input := "Please enter an integer number: ";
+	
+	FUNCTION INT main()
+	BEGIN
+        INT i,j,k,x;
+		i := 1;
+        j := 1;
+        x := 1;
+        WHILE(i < 10)
+            IF(j< 5)
+                INT x, y, z;
+                x := 10;
+                WRITE(x);
+            ENDIF
+            WRITE(x, newline);
+            i := i + 1;
+		ENDWHILE
+
+        j := 1;
+        WRITE(i, input);
+	END
+END
+
+// 101
+// 101
+// 101
+// 101
+// 101
+// 101
+// 101
+// 101
+// 101
+// 10Please enter an integer number:

@@ -1,0 +1,65 @@
+str eol_GLOBAL "\n"
+push
+jsr main
+pop
+sys halt
+label adder
+link 0
+str invalid_adder "Enter a valid operation\n"
+move 0 r0
+cmpi $4 r0
+jne label3
+str val1_BLOCK1 "addition"
+sys writes val1_BLOCK1
+sys writes eol_GLOBAL
+move $2 r1
+addi $3 r1
+move r1 $5
+unlnk
+ret
+jmp label4
+label label3
+move 1 r2
+cmpi $4 r2
+jne label1
+str val3_BLOCK3 "subtraction"
+sys writes val3_BLOCK3
+sys writes eol_GLOBAL
+move $2 r3
+subi $3 r3
+move r3 $5
+unlnk
+ret
+jmp label2
+label label1
+label label2
+label label4
+sys writes invalid_adder
+sys writes eol_GLOBAL
+move 0 r4
+move r4 $5
+unlnk
+ret
+label main
+link 4
+str ask_main "Enter a number : "
+str askop_main "Add(0) or sub(1) : "
+sys writes ask_main
+sys readi $-2
+sys writes ask_main
+sys readi $-3
+sys writes askop_main
+sys readi $-4
+push
+push $-4
+push $-3
+push $-2
+jsr adder
+pop
+pop
+pop
+pop r5
+move r5 $-1
+sys writei $-1
+unlnk
+ret

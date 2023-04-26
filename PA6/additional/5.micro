@@ -1,0 +1,38 @@
+PROGRAM factorial
+BEGIN
+    STRING eol := "\n";
+    INT n;
+    FUNCTION INT test (INT a, INT b)
+	BEGIN
+        INT i;
+        i := 0;
+        WHILE (i < n)
+            INT temp;
+            temp := a + b + i;
+            WRITE(temp, eol);
+            i := i + 1;
+        ENDWHILE
+        RETURN i;
+	END
+	
+	FUNCTION VOID main ()
+	BEGIN
+        INT x, ret;
+        n := 10;
+        x := 5;
+        ret := test(x, 2);
+        WRITE(ret, eol);
+	END
+END
+
+// 7
+// 8
+// 9
+// 10
+// 11
+// 12
+// 13
+// 14
+// 15
+// 16
+// 10
