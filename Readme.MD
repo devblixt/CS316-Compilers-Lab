@@ -1,4 +1,4 @@
-#CS316 Compilers Lab
+##CS316 Compilers Lab
 
 PA 1 : Implementation of a scanner for the MICRO language. Everything works. 
 
