@@ -16,4 +16,4 @@ PA 7 : Optimizing the tiny code generation such that it uses only 4 registers. I
 
 Contributions and Pull Requests are much appreciated. 
 
-PS: Thanks to Arvind Kumar M for providing me additional.zip which contain MICRO programs with which you can potentially detect your compiler's faults. The additional programs are very useful. 
+PS: Thanks to @Arvind-kumar-M-08 for providing me additional.zip which contain MICRO programs with which you can potentially detect your compiler's faults. The additional programs are very useful. 
