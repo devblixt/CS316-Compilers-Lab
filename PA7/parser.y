@@ -84,7 +84,7 @@
 program:			_PROGRAM id _BEGIN { 
 
     for(int i = 0; i <200; i++) {
-        std::cout<<"var TEMP"<<i<<std::endl;
+        std::cout<<"var deez"<<i<<std::endl;
     }
     tableStack->addNewTable("GLOBAL"); } pgm_body _END { tableStack->removeTable(); }
 					;

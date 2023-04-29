@@ -262,7 +262,7 @@ class CodeObject
 
     std::string getTemp()
     {
-        return "TEMP" + std::to_string(++temp_value);
+        return "deez" + std::to_string(++temp_value);
     }
 
     void addRead(std::string var_name, std::string type)
@@ -346,7 +346,7 @@ public:
 			return s;
 		};
 // for(int test = 0; test < code->temp_value; test++){
-//     std::cout<<"var T"<<test<<std::endl;
+//     std::cout<<"var deez"<<test+1<<std::endl;
 // }
                 
 		for (CodeLine *line : code->threeAC)
